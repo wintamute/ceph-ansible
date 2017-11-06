@@ -18,6 +18,11 @@
 - name: include ceph_disk_cli_options_facts.yml
   include: ceph_disk_cli_options_facts.yml
 
+- name: foobar debug
+  debug:
+    msg: "{{ item.value.get('vendor') == '' }}"
+  with_dict: "{{ ansible_devices }}"
+
 - name: set_fact devices generate device list when osd_auto_discovery
   set_fact:
     devices: "{{ devices | default([]) + [ item.key | regex_replace('^', '/dev/') ] }}"
@@ -26,8 +31,13 @@
     - osd_auto_discovery
     - ansible_devices is defined
     - item.value.removable == "0"
+    - item.value.get('vendor') != ''
     - item.value.partitions|count == 0
     - item.value.holders|count == 0
+
+- name: debug devices
+  debug:
+    msg: "{{ devices }}"
 
 - name: include check_devices.yml
   include: check_devices.yml
